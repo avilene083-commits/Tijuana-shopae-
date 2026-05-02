@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tijuana Shop - Marketplace Local</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dark: '#0F0F11',
+                        surface: '#1A1A1F',
+                        lime: '#39FF14',
+                        orange: '#FF6B00',
+                        graytxt: '#B0B0B0',
+                    },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    borderRadius: { 'card': '30px' }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.6); }
+            .glow-lime { box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
+            .price-badge { border-radius: 20px; background-color: #39FF14; color: #0F0F11; font-weight: 900; }
+            .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity
+      
