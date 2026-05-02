@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tijuana Shop - Marketplace Local</title>
+    <title>Tijuana Shop - Marketplace Real</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
                 extend: {
-                    colors: {
-                        dark: '#0F0F11',
-                        surface: '#1A1A1F',
-                        lime: '#39FF14',
-                        orange: '#FF6B00',
-                        graytxt: '#B0B0B0',
-                    },
+                    colors: { dark: '#0F0F11', surface: '#1A1A1F', lime: '#39FF14', orange: '#FF6B00', graytxt: '#B0B0B0' },
                     fontFamily: { sans: ['Inter', 'sans-serif'] },
                     borderRadius: { 'card': '30px' }
                 }
@@ -26,8 +21,137 @@
     <style type="text/tailwindcss">
         @layer utilities {
             .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.6); }
-            .glow-lime { box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); }
             .price-badge { border-radius: 20px; background-color: #39FF14; color: #0F0F11; font-weight: 900; }
             .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity
-      
+            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        }
+    </style>
+</head>
+<body class="bg-dark text-white font-sans min-h-screen pb-32">
+
+<script>
+    const SUB_URL = 'https://iwvptwjkzxfojtmpydup.supabase.co'; 
+    const SUB_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3dnB0d2prenhmb2p0bXB5ZHVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2ODU0MjcsImV4cCI6MjA5MzI2MTQyN30.x7uB60VvLIedKkhvcKmF15WRC3KzdLhweT3mpo4BBG4';
+    
+    // Conexión inicial
+    const { createClient } = supabase;
+    const _supabase = createClient(SUB_URL, SUB_KEY);
+</script>
+
+<div id="publishModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+    <div class="bg-surface w-full max-w-md rounded-card border border-gray-700 p-6 relative">
+        <button onclick="toggleModal()" class="absolute top-4 right-4 text-graytxt text-2xl">&times;</button>
+        <h2 class="text-2xl font-bold mb-4 text-orange italic text-center">VENDER EN TIJUANA</h2>
+        <div class="space-y-4">
+            <input id="prodName" type="text" placeholder="¿Qué vendes?" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime transition-all">
+            <input id="prodPrice" type="number" placeholder="Precio ($MXN)" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime transition-all">
+            <select id="prodZone" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime appearance-none">
+                <option value="Centro">📍 Zona Centro</option>
+                <option value="Otay">📍 Otay / Universidad</option>
+                <option value="Playas">📍 Playas de Tijuana</option>
+                <option value="Rio">📍 Zona Río</option>
+                <option value="Refugio">📍 El Refugio / 2000</option>
+            </select>
+            <button id="btnSave" onclick="saveProduct()" class="w-full bg-orange py-4 rounded-xl font-extrabold text-lg hover:glow-orange active:scale-95 transition-all shadow-lg">PUBLICAR AHORA</button>
+        </div>
+    </div>
+</div>
+
+<header class="p-6">
+    <h1 class="text-3xl font-extrabold tracking-tighter italic leading-none">TIJUANA SHOP</h1>
+    <p id="locationStatus" class="text-[10px] uppercase tracking-widest mt-1 font-bold text-graytxt">Marketplace Local en Línea</p>
+</header>
+
+<main id="productGrid" class="px-4 grid grid-cols-2 gap-4">
+    <div class="col-span-2 text-center py-20 text-graytxt animate-pulse">Conectando con la base de datos...</div>
+</main>
+
+<nav class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-md border-t border-gray-800 pb-8 pt-3 px-10 z-40">
+    <div class="flex justify-between items-center">
+        <div class="text-center text-lime"><span class="text-xl">🏠</span><span class="block text-[9px] font-bold">INICIO</span></div>
+        <div class="text-center text-graytxt opacity-50"><span class="text-xl">🔍</span><span class="block text-[9px]">BUSCAR</span></div>
+        <div class="w-14"></div>
+        <div class="text-center text-graytxt opacity-50"><span class="text-xl">💬</span><span class="block text-[9px]">CHAT</span></div>
+        <div class="text-center text-graytxt opacity-50"><span class="text-xl">👤</span><span class="block text-[9px]">PERFIL</span></div>
+    </div>
+</nav>
+
+<button onclick="toggleModal()" class="fixed bottom-10 left-1/2 -translate-x-1/2 w-16 h-16 bg-orange rounded-full glow-orange flex items-center justify-center text-4xl font-bold z-50 hover:scale-110 active:scale-90 transition-all shadow-2xl"> + </button>
+
+<script>
+    // Cargar desde Supabase
+    async function loadProducts() {
+        const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
+        const grid = document.getElementById('productGrid');
+        
+        if (error) {
+            grid.innerHTML = `<p class="col-span-2 text-center text-orange text-xs italic">Error de conexión. Revisa la tabla en Supabase.</p>`;
+            return;
+        }
+
+        if (data.length === 0) {
+            grid.innerHTML = `<p class="col-span-2 text-center py-10 text-graytxt text-xs uppercase italic tracking-widest">No hay anuncios hoy. ¡Sé el primero!</p>`;
+            return;
+        }
+
+        grid.innerHTML = data.map(p => `
+            <div class="bg-surface rounded-card overflow-hidden border border-gray-800 animate-fadeIn shadow-xl">
+                <div class="relative h-36 overflow-hidden">
+                    <img src="${p.imagen || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300'}" class="w-full h-full object-cover">
+                    <div class="price-badge absolute bottom-2 left-2 px-3 py-1 text-[11px] shadow-lg">$ ${p.precio}</div>
+                </div>
+                <div class="p-3">
+                    <h3 class="font-bold text-[11px] truncate uppercase tracking-tighter">${p.nombre}</h3>
+                    <p class="text-graytxt text-[9px] mt-1 italic">📍 ${p.zona}</p>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    // Guardar en Supabase
+    async function saveProduct() {
+        const name = document.getElementById('prodName').value;
+        const price = document.getElementById('prodPrice').value;
+        const zone = document.getElementById('prodZone').value;
+        const btn = document.getElementById('btnSave');
+
+        if(!name || !price) return alert("Completa los datos");
+
+        btn.innerText = "SUBIENDO...";
+        btn.disabled = true;
+
+        const { error } = await _supabase.from('productos').insert([{ 
+            nombre: name, 
+            precio: Number(price).toLocaleString(), 
+            zona: zone,
+            imagen: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
+        }]);
+
+        if (error) {
+            alert("Error al publicar. Asegúrate de que RLS esté desactivado en Supabase.");
+            console.error(error);
+        } else {
+            toggleModal();
+            loadProducts();
+            document.getElementById('prodName').value = "";
+            document.getElementById('prodPrice').value = "";
+        }
+        btn.innerText = "PUBLICAR AHORA";
+        btn.disabled = false;
+    }
+
+    function toggleModal() { document.getElementById('publishModal').classList.toggle('hidden'); }
+
+    window.onload = () => {
+        loadProducts();
+        if(navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(() => {
+                const st = document.getElementById('locationStatus');
+                st.innerText = "📍 TIJUANA, B.C. (SISTEMA ACTIVO)";
+                st.style.color = "#39FF14";
+            });
+        }
+    };
+</script>
+</body>
+</html>
