@@ -3,155 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tijuana Shop - Marketplace Real</title>
+    <title>Tijuana Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: { dark: '#0F0F11', surface: '#1A1A1F', lime: '#39FF14', orange: '#FF6B00', graytxt: '#B0B0B0' },
-                    fontFamily: { sans: ['Inter', 'sans-serif'] },
-                    borderRadius: { 'card': '30px' }
-                }
-            }
+            theme: { extend: { colors: { dark: '#0F0F11', surface: '#1A1A1F', lime: '#39FF14', orange: '#FF6B00' } } }
         }
     </script>
-    <style type="text/tailwindcss">
-        @layer utilities {
-            .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 0, 0.6); }
-            .price-badge { border-radius: 20px; background-color: #39FF14; color: #0F0F11; font-weight: 900; }
-            .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
-            @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        }
-    </style>
 </head>
-<body class="bg-dark text-white font-sans min-h-screen pb-32">
+<body class="bg-dark text-white min-h-screen pb-24">
 
 <script>
+    // TUS DATOS CONFIRMADOS
     const SUB_URL = 'https://iwvptwjkzxfojtmpydup.supabase.co'; 
     const SUB_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3dnB0d2prenhmb2p0bXB5ZHVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2ODU0MjcsImV4cCI6MjA5MzI2MTQyN30.x7uB60VvLIedKkhvcKmF15WRC3KzdLhweT3mpo4BBG4';
     
-    // Conexión inicial
-    const { createClient } = supabase;
-    const _supabase = createClient(SUB_URL, SUB_KEY);
+    const _supabase = supabase.createClient(SUB_URL, SUB_KEY);
 </script>
 
-<div id="publishModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-    <div class="bg-surface w-full max-w-md rounded-card border border-gray-700 p-6 relative">
-        <button onclick="toggleModal()" class="absolute top-4 right-4 text-graytxt text-2xl">&times;</button>
-        <h2 class="text-2xl font-bold mb-4 text-orange italic text-center">VENDER EN TIJUANA</h2>
-        <div class="space-y-4">
-            <input id="prodName" type="text" placeholder="¿Qué vendes?" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime transition-all">
-            <input id="prodPrice" type="number" placeholder="Precio ($MXN)" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime transition-all">
-            <select id="prodZone" class="w-full bg-dark p-4 rounded-xl border border-gray-700 outline-none focus:border-lime appearance-none">
-                <option value="Centro">📍 Zona Centro</option>
-                <option value="Otay">📍 Otay / Universidad</option>
-                <option value="Playas">📍 Playas de Tijuana</option>
-                <option value="Rio">📍 Zona Río</option>
-                <option value="Refugio">📍 El Refugio / 2000</option>
-            </select>
-            <button id="btnSave" onclick="saveProduct()" class="w-full bg-orange py-4 rounded-xl font-extrabold text-lg hover:glow-orange active:scale-95 transition-all shadow-lg">PUBLICAR AHORA</button>
-        </div>
-    </div>
-</div>
-
 <header class="p-6">
-    <h1 class="text-3xl font-extrabold tracking-tighter italic leading-none">TIJUANA SHOP</h1>
-    <p id="locationStatus" class="text-[10px] uppercase tracking-widest mt-1 font-bold text-graytxt">Marketplace Local en Línea</p>
+    <h1 class="text-3xl font-black italic">TIJUANA SHOP</h1>
+    <div id="status" class="text-[10px] font-bold text-lime">📍 CONECTADO</div>
 </header>
 
 <main id="productGrid" class="px-4 grid grid-cols-2 gap-4">
-    <div class="col-span-2 text-center py-20 text-graytxt animate-pulse">Conectando con la base de datos...</div>
-</main>
+    </main>
 
-<nav class="fixed bottom-0 left-0 w-full bg-surface/90 backdrop-blur-md border-t border-gray-800 pb-8 pt-3 px-10 z-40">
-    <div class="flex justify-between items-center">
-        <div class="text-center text-lime"><span class="text-xl">🏠</span><span class="block text-[9px] font-bold">INICIO</span></div>
-        <div class="text-center text-graytxt opacity-50"><span class="text-xl">🔍</span><span class="block text-[9px]">BUSCAR</span></div>
-        <div class="w-14"></div>
-        <div class="text-center text-graytxt opacity-50"><span class="text-xl">💬</span><span class="block text-[9px]">CHAT</span></div>
-        <div class="text-center text-graytxt opacity-50"><span class="text-xl">👤</span><span class="block text-[9px]">PERFIL</span></div>
+<button onclick="document.getElementById('modal').classList.toggle('hidden')" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-orange rounded-full text-3xl font-bold shadow-lg z-50">+</button>
+
+<div id="modal" class="hidden fixed inset-0 bg-black/90 z-[100] p-6">
+    <div class="bg-surface p-6 rounded-3xl space-y-4">
+        <h2 class="text-xl font-bold text-orange">NUEVO PRODUCTO</h2>
+        <input id="p_name" type="text" placeholder="Nombre" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
+        <input id="p_price" type="number" placeholder="Precio" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
+        <input id="p_zone" type="text" placeholder="Zona (ej. Otay)" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
+        <button onclick="save()" id="btnSave" class="w-full bg-orange py-4 rounded-xl font-bold">PUBLICAR</button>
+        <button onclick="document.getElementById('modal').classList.add('hidden')" class="w-full text-gray-400">Cancelar</button>
     </div>
-</nav>
-
-<button onclick="toggleModal()" class="fixed bottom-10 left-1/2 -translate-x-1/2 w-16 h-16 bg-orange rounded-full glow-orange flex items-center justify-center text-4xl font-bold z-50 hover:scale-110 active:scale-90 transition-all shadow-2xl"> + </button>
+</div>
 
 <script>
-    // Cargar desde Supabase
-    async function loadProducts() {
-        const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
+    async function load() {
         const grid = document.getElementById('productGrid');
+        // Usamos 'productos' en minúsculas como se ve en tu foto
+        const { data, error } = await _supabase.from('productos').select('*');
         
         if (error) {
-            grid.innerHTML = `<p class="col-span-2 text-center text-orange text-xs italic">Error de conexión. Revisa la tabla en Supabase.</p>`;
-            return;
-        }
-
-        if (data.length === 0) {
-            grid.innerHTML = `<p class="col-span-2 text-center py-10 text-graytxt text-xs uppercase italic tracking-widest">No hay anuncios hoy. ¡Sé el primero!</p>`;
+            grid.innerHTML = `<div class="col-span-2 text-orange text-center p-10 text-xs">ERROR: ${error.message}</div>`;
             return;
         }
 
         grid.innerHTML = data.map(p => `
-            <div class="bg-surface rounded-card overflow-hidden border border-gray-800 animate-fadeIn shadow-xl">
-                <div class="relative h-36 overflow-hidden">
-                    <img src="${p.imagen || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300'}" class="w-full h-full object-cover">
-                    <div class="price-badge absolute bottom-2 left-2 px-3 py-1 text-[11px] shadow-lg">$ ${p.precio}</div>
+            <div class="bg-surface rounded-2xl overflow-hidden border border-white/5">
+                <div class="h-32 bg-gray-800">
+                    <img src="${p.imagen || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover">
                 </div>
                 <div class="p-3">
-                    <h3 class="font-bold text-[11px] truncate uppercase tracking-tighter">${p.nombre}</h3>
-                    <p class="text-graytxt text-[9px] mt-1 italic">📍 ${p.zona}</p>
+                    <div class="text-lime font-black">$${p.precio}</div>
+                    <div class="text-[10px] font-bold uppercase truncate">${p.nombre}</div>
+                    <div class="text-[8px] text-gray-500 italic">📍 ${p.zona || 'Tijuana'}</div>
                 </div>
             </div>
         `).join('');
     }
 
-    // Guardar en Supabase
-    async function saveProduct() {
-        const name = document.getElementById('prodName').value;
-        const price = document.getElementById('prodPrice').value;
-        const zone = document.getElementById('prodZone').value;
-        const btn = document.getElementById('btnSave');
+    async function save() {
+        const n = document.getElementById('p_name').value;
+        const p = document.getElementById('p_price').value;
+        const z = document.getElementById('p_zone').value;
+        
+        const { error } = await _supabase.from('productos').insert([
+            { nombre: n, precio: p, zona: z, imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400' }
+        ]);
 
-        if(!name || !price) return alert("Completa los datos");
-
-        btn.innerText = "SUBIENDO...";
-        btn.disabled = true;
-
-        const { error } = await _supabase.from('productos').insert([{ 
-            nombre: name, 
-            precio: Number(price).toLocaleString(), 
-            zona: zone,
-            imagen: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400"
-        }]);
-
-        if (error) {
-            alert("Error al publicar. Asegúrate de que RLS esté desactivado en Supabase.");
-            console.error(error);
-        } else {
-            toggleModal();
-            loadProducts();
-            document.getElementById('prodName').value = "";
-            document.getElementById('prodPrice').value = "";
+        if(error) alert("Error: " + error.message);
+        else {
+            document.getElementById('modal').classList.add('hidden');
+            load();
         }
-        btn.innerText = "PUBLICAR AHORA";
-        btn.disabled = false;
     }
 
-    function toggleModal() { document.getElementById('publishModal').classList.toggle('hidden'); }
-
-    window.onload = () => {
-        loadProducts();
-        if(navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(() => {
-                const st = document.getElementById('locationStatus');
-                st.innerText = "📍 TIJUANA, B.C. (SISTEMA ACTIVO)";
-                st.style.color = "#39FF14";
-            });
-        }
-    };
+    window.onload = load;
 </script>
 </body>
 </html>
