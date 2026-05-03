@@ -6,85 +6,112 @@
     <title>Tijuana Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        tailwind.config = {
-            theme: { extend: { colors: { dark: '#0F0F11', surface: '#1A1A1F', lime: '#39FF14', orange: '#FF6B00' } } }
-        }
-    </script>
 </head>
-<body class="bg-dark text-white min-h-screen pb-24">
+<body class="bg-[#0F0F11] text-white min-h-screen pb-24 font-sans">
 
 <script>
-    // TUS DATOS CONFIRMADOS
+    // TUS CREDENCIALES
     const SUB_URL = 'https://iwvptwjkzxfojtmpydup.supabase.co'; 
     const SUB_KEY = 'EyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3dnB0d2prenhmb2p0bXB5ZHVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc2ODU0MjcsImV4cCI6MjA5MzI2MTQyN30.x7uB60VvLIedKkhvcKmF15WRC3KzdLhweT3mpo4BBG4';
     
-    const _supabase = supabase.createClient(SUB_URL, SUB_KEY);
+    // Inicialización corregida para evitar el error "undefined"
+    const _supabase = window.supabase.createClient(SUB_URL, SUB_KEY);
 </script>
 
-<header class="p-6">
-    <h1 class="text-3xl font-black italic">TIJUANA SHOP</h1>
-    <div id="status" class="text-[10px] font-bold text-lime">📍 CONECTADO</div>
+<header class="p-6 flex justify-between items-center">
+    <div>
+        <h1 class="text-2xl font-black italic tracking-tighter">TIJUANA SHOP</h1>
+        <p class="text-[9px] text-[#39FF14] font-bold uppercase tracking-widest">● Sistema Activo</p>
+    </div>
 </header>
 
-<main id="productGrid" class="px-4 grid grid-cols-2 gap-4">
-    </main>
+<main id="productGrid" class="px-4 grid grid-cols-2 gap-3">
+    <div class="col-span-2 text-center py-20 text-gray-500 animate-pulse text-xs">CARGANDO TIENDA...</div>
+</main>
 
-<button onclick="document.getElementById('modal').classList.toggle('hidden')" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-orange rounded-full text-3xl font-bold shadow-lg z-50">+</button>
+<button onclick="document.getElementById('modal').classList.remove('hidden')" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-16 h-16 bg-[#FF6B00] rounded-full text-4xl font-bold shadow-[0_0_20px_rgba(255,107,0,0.4)] z-50 transition-transform active:scale-90">+</button>
 
-<div id="modal" class="hidden fixed inset-0 bg-black/90 z-[100] p-6">
-    <div class="bg-surface p-6 rounded-3xl space-y-4">
-        <h2 class="text-xl font-bold text-orange">NUEVO PRODUCTO</h2>
-        <input id="p_name" type="text" placeholder="Nombre" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
-        <input id="p_price" type="number" placeholder="Precio" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
-        <input id="p_zone" type="text" placeholder="Zona (ej. Otay)" class="w-full bg-dark p-4 rounded-xl border border-gray-700">
-        <button onclick="save()" id="btnSave" class="w-full bg-orange py-4 rounded-xl font-bold">PUBLICAR</button>
-        <button onclick="document.getElementById('modal').classList.add('hidden')" class="w-full text-gray-400">Cancelar</button>
+<div id="modal" class="hidden fixed inset-0 bg-black/95 z-[100] flex items-center justify-center p-4">
+    <div class="bg-[#1A1A1F] w-full max-w-sm p-6 rounded-[30px] border border-gray-800">
+        <h2 class="text-xl font-black text-[#FF6B00] mb-4 italic">NUEVA VENTA</h2>
+        <div class="space-y-3">
+            <input id="n" type="text" placeholder="¿Qué vendes?" class="w-full bg-[#0F0F11] p-4 rounded-2xl border border-gray-800 outline-none focus:border-[#39FF14]">
+            <input id="p" type="number" placeholder="Precio ($)" class="w-full bg-[#0F0F11] p-4 rounded-2xl border border-gray-800 outline-none focus:border-[#39FF14]">
+            <input id="z" type="text" placeholder="Zona (ej. Otay, Centro)" class="w-full bg-[#0F0F11] p-4 rounded-2xl border border-gray-800 outline-none focus:border-[#39FF14]">
+            
+            <button onclick="subir()" id="btn" class="w-full bg-[#FF6B00] py-4 rounded-2xl font-black text-lg mt-2">PUBLICAR</button>
+            <button onclick="document.getElementById('modal').classList.add('hidden')" class="w-full text-gray-500 text-sm font-bold uppercase tracking-widest mt-2">Cerrar</button>
+        </div>
     </div>
 </div>
 
 <script>
-    async function load() {
+    // Función para mostrar los productos
+    async function mostrar() {
         const grid = document.getElementById('productGrid');
-        // Usamos 'productos' en minúsculas como se ve en tu foto
-        const { data, error } = await _supabase.from('productos').select('*');
+        const { data, error } = await _supabase.from('productos').select('*').order('id', { ascending: false });
         
         if (error) {
-            grid.innerHTML = `<div class="col-span-2 text-orange text-center p-10 text-xs">ERROR: ${error.message}</div>`;
+            grid.innerHTML = `<div class="col-span-2 text-[#FF6B00] text-center p-10 text-[10px] font-bold">ERROR: ${error.message}</div>`;
             return;
         }
 
-        grid.innerHTML = data.map(p => `
-            <div class="bg-surface rounded-2xl overflow-hidden border border-white/5">
-                <div class="h-32 bg-gray-800">
-                    <img src="${p.imagen || 'https://via.placeholder.com/300'}" class="w-full h-full object-cover">
+        if (data.length === 0) {
+            grid.innerHTML = `<div class="col-span-2 text-center py-20 text-gray-600 text-[10px] font-bold uppercase italic tracking-widest">No hay nada en venta todavía</div>`;
+            return;
+        }
+
+        grid.innerHTML = data.map(item => `
+            <div class="bg-[#1A1A1F] rounded-[25px] overflow-hidden border border-white/5 shadow-xl">
+                <div class="h-32 relative">
+                    <img src="${item.imagen || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=300'}" class="w-full h-full object-cover">
+                    <div class="absolute bottom-2 left-2 bg-[#39FF14] text-black px-2 py-0.5 rounded-lg font-black text-[10px]">$${item.precio}</div>
                 </div>
                 <div class="p-3">
-                    <div class="text-lime font-black">$${p.precio}</div>
-                    <div class="text-[10px] font-bold uppercase truncate">${p.nombre}</div>
-                    <div class="text-[8px] text-gray-500 italic">📍 ${p.zona || 'Tijuana'}</div>
+                    <div class="text-[10px] font-black uppercase truncate italic tracking-tighter">${item.nombre}</div>
+                    <div class="text-[8px] text-gray-500 font-bold mt-1 uppercase italic">📍 ${item.zona}</div>
                 </div>
             </div>
         `).join('');
     }
 
-    async function save() {
-        const n = document.getElementById('p_name').value;
-        const p = document.getElementById('p_price').value;
-        const z = document.getElementById('p_zone').value;
-        
+    // Función para enviar a Supabase
+    async function subir() {
+        const nombre = document.getElementById('n').value;
+        const precio = document.getElementById('p').value;
+        const zona = document.getElementById('z').value;
+        const boton = document.getElementById('btn');
+
+        if(!nombre || !precio || !zona) return alert("Llena todos los campos");
+
+        boton.innerText = "SUBIENDO...";
+        boton.disabled = true;
+
         const { error } = await _supabase.from('productos').insert([
-            { nombre: n, precio: p, zona: z, imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400' }
+            { 
+                nombre: nombre, 
+                precio: precio, 
+                zona: zona, 
+                imagen: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400' 
+            }
         ]);
 
-        if(error) alert("Error: " + error.message);
-        else {
+        if(error) {
+            alert("Error al subir: " + error.message);
+        } else {
+            document.getElementById('n').value = "";
+            document.getElementById('p').value = "";
+            document.getElementById('z').value = "";
             document.getElementById('modal').classList.add('hidden');
-            load();
+            mostrar();
         }
+        
+        boton.innerText = "PUBLICAR";
+        boton.disabled = false;
     }
 
-    window.onload = load;
+    // Cargar al abrir la página
+    window.onload = mostrar;
 </script>
 </body>
 </html>
